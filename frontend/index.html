@@ -102,9 +102,9 @@
         const formData = new FormData();
         formData.append("file", file);
 
-        // Call the merged analyze-and-label API
+        // Call the analyze-and-label-json-image API
         try {
-          const response = await fetch("http://127.0.0.1:8000/analyze-and-label", {
+          const response = await fetch("http://127.0.0.1:8000/analyze-and-label-json-image", {
             method: "POST",
             body: formData,
           });
@@ -123,7 +123,7 @@
             `;
 
             // Display labeled image
-            labeledImage.src = `http://127.0.0.1:8000/labeled_images/${data.labeled_image_path.split('/').pop()}`;
+            labeledImage.src = `data:image/jpeg;base64,${data.labeled_image_base64}`;
             labeledImage.style.display = "block";
             labeledContainer.style.display = "block";
           } else {
