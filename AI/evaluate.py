@@ -10,7 +10,7 @@ data_yaml = {
     "test": "Datasets/D1/test/images",
     "ground_truth_dir": "Datasets/D1/test/labels",
 }
-model_path = "AI/yolov8x.pt"
+model_path = "models/yolov8x.pt"
 project_dir = "/home/panos/Desktop/chair-occupancy-ai/runs"  # Directory for predictions
 
 # Necessary classes

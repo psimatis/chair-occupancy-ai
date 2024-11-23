@@ -1,14 +1,18 @@
 from collections import defaultdict
+from PIL import Image, ImageDraw, ImageFont
 import torch
 from ultralytics import YOLO
 from ultralytics.engine.results import Boxes
+import os
 
-model_path = "model/yolov8x.pt"
+model_path = "models/yolo11x.pt"
 model = YOLO(model_path)
 
-# Define classes
-PERSON_CLASS_ID = 0
-CHAIR_CLASS_IDS = [13, 56, 57, 59]
+RELEVANT_CLASS_IDS = [0, 13, 56, 57, 59] # Person, Bench, Chair, Couch, Bed
+
+def find_objects(image):
+    """Run YOLO with restricted results to releevant classes."""
+    return model.predict(source=image, classes=RELEVANT_CLASS_IDS, save=False, conf=0.5)
 
 def compute_iou(box1, box2):
     """Compute Intersection over Union (IoU) for two bounding boxes."""
@@ -24,32 +28,16 @@ def compute_iou(box1, box2):
 
     return intersection / union if union > 0 else 0
 
-def filter_classes(result):
-    """Filter predictions to include only person and chair-related classes."""
-    filtered_data = []
-    for i in range(len(result.boxes)):
-        box = result.boxes.xyxy[i]
-        score = result.boxes.conf[i]
-        cls = result.boxes.cls[i]
-        if int(cls) == PERSON_CLASS_ID or int(cls) in CHAIR_CLASS_IDS:
-            filtered_data.append(torch.cat([box, torch.tensor([score, cls])]))
-
-    if filtered_data:
-        relevant_boxes = torch.stack(filtered_data)
-        result.boxes = Boxes(relevant_boxes, orig_shape=result.orig_shape)
-    else:
-        result.boxes = Boxes(torch.empty((0, 6)), orig_shape=result.orig_shape)
-
-def calculate_overlaps(results, iou_threshold=0.3):
+def calculate_overlaps(results, iou_threshold=0.2):
     """Calculate overlaps between person and chair bounding boxes."""
     person_boxes = []
     chair_boxes = []
 
     for result in results:
         for box, cls in zip(result.boxes.xyxy, result.boxes.cls):
-            if int(cls) == PERSON_CLASS_ID:
+            if int(cls) == RELEVANT_CLASS_IDS:
                 person_boxes.append(box.tolist())
-            elif int(cls) in CHAIR_CLASS_IDS:
+            elif int(cls) in RELEVANT_CLASS_IDS:
                 chair_boxes.append(box.tolist())
 
     stats = defaultdict(int)
@@ -64,3 +52,24 @@ def calculate_overlaps(results, iou_threshold=0.3):
     stats['person_count'] = len(person_boxes)
     stats['occupancy_percentage'] = (stats['overlap_count'] / stats['chair_count']) * 100 if stats['chair_count'] > 0 else 0
     return stats
+
+def save_labeled_image(image_path, results, output_dir):
+    """
+    Use YOLO's result.plot to create labeled images and save the result.
+    """
+    for result in results:
+        labeled_image = result.plot()  # Get the labeled image as a NumPy array
+
+    # Convert to PIL Image
+    labeled_image = Image.fromarray(labeled_image)
+
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Generate labeled image path
+    labeled_image_path = os.path.join(output_dir, f"labeled_{os.path.basename(image_path)}")
+    labeled_image.save(labeled_image_path)
+
+    print(f"Labeled image saved to {labeled_image_path}")
+    return labeled_image_path
+

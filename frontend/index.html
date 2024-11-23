@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Analysis</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      margin: 20px auto;
+      max-width: 500px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 20px 0;
+    }
+
+    label:hover {
+      background-color: #0056b3;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    .stats {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      text-align: left;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Image Analysis</h1>
+    <input type="file" id="fileInput" accept="image/*">
+    <label for="fileInput">Choose Image</label>
+
+    <div id="preview">
+      <img id="selectedImage" src="" alt="Selected Image" style="display:none;">
+    </div>
+
+    <div id="stats" class="stats" style="display:none;"></div>
+
+    <div id="labeledContainer" style="display:none;">
+      <h3>Labeled Image</h3>
+      <img id="labeledImage" src="" alt="Labeled Image" style="display:none;">
+    </div>
+
+    <div id="error" class="error" style="display:none;"></div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const selectedImage = document.getElementById("selectedImage");
+    const labeledImage = document.getElementById("labeledImage");
+    const statsDiv = document.getElementById("stats");
+    const labeledContainer = document.getElementById("labeledContainer");
+    const errorDiv = document.getElementById("error");
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files[0];
+
+      if (file) {
+        // Display the selected image
+        const reader = new FileReader();
+        reader.onload = () => {
+          selectedImage.src = reader.result;
+          selectedImage.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+
+        // Prepare form data
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // Call the analyze API
+        try {
+          const analyzeResponse = await fetch("http://127.0.0.1:8000/analyze", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (analyzeResponse.ok) {
+            const analyzeData = await analyzeResponse.json();
+
+            // Display stats
+            statsDiv.style.display = "block";
+            statsDiv.innerHTML = `
+              <h3>Analysis Results</h3>
+              <p><strong>Persons Detected:</strong> ${analyzeData.persons_detected}</p>
+              <p><strong>Chairs Detected:</strong> ${analyzeData.chairs_detected}</p>
+              <p><strong>Overlaps (Person-Chair):</strong> ${analyzeData.overlaps}</p>
+              <p><strong>Occupancy Percentage:</strong> ${analyzeData.occupancy_percentage.toFixed(2)}%</p>
+            `;
+          } else {
+            throw new Error(`Analyze API Error: ${analyzeResponse.status}`);
+          }
+        } catch (error) {
+          console.error(error);
+          errorDiv.style.display = "block";
+          errorDiv.textContent = `Error: ${error.message}`;
+          return; // Stop further processing
+        }
+
+        // Call the label-image API
+        try {
+          const labelResponse = await fetch("http://127.0.0.1:8000/label-image", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (labelResponse.ok) {
+            const labeledImageBlob = await labelResponse.blob();
+            const labeledImageUrl = URL.createObjectURL(labeledImageBlob);
+
+            // Display labeled image
+            labeledImage.src = labeledImageUrl;
+            labeledImage.style.display = "block";
+            labeledContainer.style.display = "block";
+          } else {
+            throw new Error(`Label API Error: ${labelResponse.status}`);
+          }
+        } catch (error) {
+          console.error(error);
+          errorDiv.style.display = "block";
+          errorDiv.textContent = `Error: ${error.message}`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
