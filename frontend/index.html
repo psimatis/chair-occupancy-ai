@@ -123,7 +123,7 @@
             `;
 
             // Display labeled image
-            labeledImage.src = `http://127.0.0.1:8000/${data.labeled_image_path}`;
+            labeledImage.src = `http://127.0.0.1:8000/labeled_images/${data.labeled_image_path.split('/').pop()}`;
             labeledImage.style.display = "block";
             labeledContainer.style.display = "block";
           } else {

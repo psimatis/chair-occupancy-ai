@@ -11,12 +11,14 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-# Mount the labeled images directory as a static file route
-app.mount("/labeled_images", StaticFiles(directory="labeled_images"), name="labeled_images")
-
-# Directory for labeled images
-LABELS_DIR = "labeled_images"
+# Directory for labeled images, stored outside the source folder
+LABELS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../labeled_images"))
 os.makedirs(LABELS_DIR, exist_ok=True)
+
+# Mount the labeled images directory as a static file route
+app = FastAPI()
+app.mount("/labeled_images", StaticFiles(directory=LABELS_DIR), name="labeled_images")
+
 
 @app.post("/analyze-and-label")
 async def analyze_and_label_image(file: UploadFile = File(...)):

@@ -1,8 +1,10 @@
-# Exclude datasets directory
+# Exclude data directories
 Datasets/
 
-# Exclude YOLO output directory
+# Exclude YOLO output
 runs/
+labeled_images/
+
 
 # Exclude Python virtual environment
 venv/
