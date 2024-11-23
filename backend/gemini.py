@@ -32,8 +32,8 @@ def analyze_image(image_path):
         model = genai.GenerativeModel("gemini-1.5-pro")  # Initialize the generative model
 
         # Formulate the request
-        prompt = "Keep it brief. Say if there many or few empty chairs. Suggest where to find an empty chair. Give demographics."
-        result = model.generate_content([prompt, img], generation_config=genai.types.GenerationConfig(max_output_tokens=50))
+        prompt = "Keep it brief. Say if there many or few empty chairs. Suggest where to find an empty chair. Give demographics and comment on the weather. Do not mention that it appears like a resort/hotel."
+        result = model.generate_content([prompt, img], generation_config=genai.types.GenerationConfig(max_output_tokens=800))
         return result.text
 
     except Exception as e:

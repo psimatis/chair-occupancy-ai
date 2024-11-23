@@ -1,8 +1,7 @@
 const fileInput = document.getElementById("fileInput");
-const selectedImage = document.getElementById("selectedImage");
 const labeledImage = document.getElementById("labeledImage");
-const statsDiv = document.getElementById("stats");
 const labeledContainer = document.getElementById("labeledContainer");
+const statsDiv = document.getElementById("stats");
 const geminiResultsDiv = document.getElementById("geminiResults");
 const geminiText = document.getElementById("geminiText");
 const errorDiv = document.getElementById("error");
@@ -29,6 +28,11 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
     if (analyzeResponse.ok) {
       const data = await analyzeResponse.json();
 
+      // Display labeled image
+      labeledImage.src = `data:image/jpeg;base64,${data.labeled_image_base64}`;
+      labeledImage.style.display = "block";
+      labeledContainer.style.display = "block";
+
       // Display stats
       statsDiv.style.display = "block";
       statsDiv.innerHTML = `
@@ -41,28 +45,22 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
         <p><strong>Max Occupancy Estimate:</strong> ${data.max_occupancy.toFixed(2)}%</p>
       `;
 
-      // Display labeled image
-      labeledImage.src = `data:image/jpeg;base64,${data.labeled_image_base64}`;
-      labeledImage.style.display = "block";
-      labeledContainer.style.display = "block";
+      // Call the Gemini API
+      const geminiResponse = await fetch("http://127.0.0.1:8000/llm-analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (geminiResponse.ok) {
+        const geminiData = await geminiResponse.json();
+        geminiResultsDiv.style.display = "block";
+        geminiText.textContent = geminiData.gemini_analysis;
+        console.log(geminiText.textContent);
+      } else {
+        throw new Error(`Gemini API Error: ${geminiResponse.status}`);
+      }
     } else {
       throw new Error(`Analyze API Error: ${analyzeResponse.status}`);
-    }
-
-    // Call the Gemini API
-    const geminiResponse = await fetch("http://127.0.0.1:8000/llm-analyze", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (geminiResponse.ok) {
-      const geminiData = await geminiResponse.json();
-
-      // Display Gemini results
-      geminiResultsDiv.style.display = "block";
-      geminiText.textContent = geminiData.gemini_analysis;
-    } else {
-      throw new Error(`Gemini API Error: ${geminiResponse.status}`);
     }
   } catch (error) {
     console.error(error);
@@ -74,15 +72,6 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
 fileInput.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (file) {
-    // Display selected image
-    const reader = new FileReader();
-    reader.onload = () => {
-      selectedImage.src = reader.result;
-      selectedImage.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-
-    // Analyze uploaded image
     analyzeImage(file, true);
   }
 });
@@ -90,12 +79,6 @@ fileInput.addEventListener("change", () => {
 galleryImages.forEach((img) => {
   img.addEventListener("click", (event) => {
     const src = event.target.getAttribute("data-src");
-
-    // Display selected image
-    selectedImage.src = src;
-    selectedImage.style.display = "block";
-
-    // Analyze selected gallery image
     analyzeImage(src);
   });
 });
