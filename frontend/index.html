@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Image Analysis</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="container">
@@ -29,6 +30,11 @@
     <div id="labeledContainer" style="display:none;">
       <h3>Labeled Image</h3>
       <img id="labeledImage" src="" alt="Labeled Image" style="display:none;">
+    </div>
+
+    <div id="geminiResults" class="gemini-results" style="display:none;">
+      <h3>Gemini Analysis</h3>
+      <p id="geminiText"></p>
     </div>
 
     <div id="error" class="error" style="display:none;"></div>
