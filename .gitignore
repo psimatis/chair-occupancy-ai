@@ -1,0 +1,41 @@
+# Exclude datasets directory
+Datasets/
+
+# Exclude YOLO output directory
+runs/
+
+# Exclude Python virtual environment
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Logs and debug files
+*.log
+*.txt
+*.out
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE and editor-specific files
+.vscode/
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Other
+TODO
+*.pt
