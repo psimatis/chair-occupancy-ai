@@ -37,12 +37,9 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
       statsDiv.style.display = "block";
       statsDiv.innerHTML = `
         <h3>Analysis Results</h3>
-        <p><strong>Persons Detected:</strong> ${data.people}</p>
-        <p><strong>Chairs Detected:</strong> ${data.chairs}</p>
-        <p><strong>Chairs Taken:</strong> ${data.chairs_taken}</p>
-        <p><strong>Empty Chairs:</strong> ${data.empty_chairs}</p>
-        <p><strong>Min Occupancy Estimate:</strong> ${data.min_occupancy.toFixed(2)}%</p>
-        <p><strong>Max Occupancy Estimate:</strong> ${data.max_occupancy.toFixed(2)}%</p>
+        <p><strong>${data.people}</strong> people detected</p>
+        <p><strong>${data.chairs_taken}</strong>  out of chairs  <strong>${data.chairs}</strong> are taken </p>
+        <p><strong>Occupancy estimate:</strong> ${data.min_occupancy.toFixed(2)}% - ${data.max_occupancy.toFixed(2)}%</p>
       `;
 
       // Call the Gemini API
