@@ -36,7 +36,7 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
       // Display stats
       statsDiv.style.display = "block";
       statsDiv.innerHTML = `
-        <h3>Analysis Results</h3>
+        <h3>AI Statistics</h3>
         <p><strong>${data.people}</strong> people detected</p>
         <p><strong>${data.chairs_taken}</strong>  out of chairs  <strong>${data.chairs}</strong> are taken </p>
         <p><strong>Occupancy estimate:</strong> ${data.min_occupancy.toFixed(2)}% - ${data.max_occupancy.toFixed(2)}%</p>
@@ -53,7 +53,7 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
 
       if (geminiResponse.ok) {
         const geminiData = await geminiResponse.json();
-        geminiText.innerHTML = geminiData.gemini_analysis;
+        geminiText.innerHTML = `<em>${geminiData.gemini_analysis}</em>`;
       } else {
         throw new Error(`Gemini API Error: ${geminiResponse.status}`);
       }
