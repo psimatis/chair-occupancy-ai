@@ -3,7 +3,7 @@ import torch
 from ultralytics import YOLO
 from ultralytics.engine.results import Boxes
 
-model_path = "AI/yolov8x.pt"
+model_path = "model/yolov8x.pt"
 model = YOLO(model_path)
 
 # Define classes
