@@ -10,7 +10,7 @@ RELEVANT_CLASS_IDS = [0, 13, 56, 57, 59] # Person, Bench, Chair, Couch, Bed
 
 def find_objects(image):
     """Run YOLO with restricted results to releevant classes."""
-    return model.predict(source=image, classes=RELEVANT_CLASS_IDS, save=False, conf=0.25)
+    return model.predict(source=image, classes=RELEVANT_CLASS_IDS, save=False, conf=0.2)
 
 def compute_iou(box1, box2):
     """Compute Intersection over Union (IoU) for two bounding boxes."""
@@ -26,7 +26,7 @@ def compute_iou(box1, box2):
 
     return intersection / union if union > 0 else 0
 
-def calculate_stats(results, iou_threshold=0.05):
+def calculate_stats(results, iou_threshold=0.01):
     """Calculate overlaps, utilization details, and person-to-chair ratio."""
     stats = defaultdict(int)
     person_boxes = []
@@ -41,11 +41,18 @@ def calculate_stats(results, iou_threshold=0.05):
                 chair_boxes.append(box.tolist())
 
     # Calculate occupied chairs
+    matched_chairs = set()
     for person_box in person_boxes:
         for chair_box in chair_boxes:
-            iou = compute_iou(person_box, chair_box)
-            if iou >= iou_threshold:
+            if tuple(chair_box) in matched_chairs:
+                continue  # Skip occupied chairs
+
+            if compute_iou(person_box, chair_box) >= iou_threshold:
                 stats['chairs_taken'] += 1
+                matched_chairs.add(tuple(chair_box))  
+                break  # Exit the loop after finding a match for this person
+
+    stats['chairs_taken'] = min(stats['chairs_taken'], len(chair_boxes), len(person_boxes))
 
     # Chair utilization details
     stats['chairs'] = len(chair_boxes)
@@ -53,6 +60,7 @@ def calculate_stats(results, iou_threshold=0.05):
     stats['empty_chairs'] = stats['chairs'] - stats['chairs_taken']
     stats['min_occupancy'] = (stats['chairs_taken'] / stats['chairs']) * 100 if stats['chairs'] > 0 else 0
     stats['max_occupancy'] = (stats['people'] / stats['chairs']) * 100 if stats['chairs'] > 0 else 0
+    print('Stats:', stats)
     return stats
 
 def save_labeled_image(input_image, results, output_dir):
