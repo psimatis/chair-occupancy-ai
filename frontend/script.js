@@ -43,6 +43,9 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
       `;
 
       // Call the Gemini API
+      geminiText.innerHTML = "<em>AI is thinking...</em>";
+      geminiResultsDiv.style.display = "block";
+
       const geminiResponse = await fetch("http://127.0.0.1:8000/llm-analyze", {
         method: "POST",
         body: formData,
@@ -50,9 +53,7 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
 
       if (geminiResponse.ok) {
         const geminiData = await geminiResponse.json();
-        geminiResultsDiv.style.display = "block";
-        geminiText.textContent = geminiData.gemini_analysis;
-        console.log(geminiText.textContent);
+        geminiText.innerHTML = geminiData.gemini_analysis;
       } else {
         throw new Error(`Gemini API Error: ${geminiResponse.status}`);
       }

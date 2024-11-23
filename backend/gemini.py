@@ -17,19 +17,21 @@ if not GEMINI_API_KEY:
 genai.configure(api_key=GEMINI_API_KEY)
 
 
-def analyze_image(image_path):
+def analyze_image(image_path, dummy=True):
     """
     Analyze an image using the Gemini API.
     :param image_path: Path to the image to be analyzed.
     :return: Analysis results from the Gemini API.
     """
+    if dummy:
+        return "Analysis results from the Gemini API."
     try:
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image not found at: {image_path}")
 
         img = PIL.Image.open(image_path)
 
-        model = genai.GenerativeModel("gemini-1.5-pro")  # Initialize the generative model
+        model = genai.GenerativeModel("gemini-1.5-flash")  # Initialize the generative model
 
         # Formulate the request
         prompt = "Keep it brief. Say if there many or few empty chairs. Suggest where to find an empty chair. Give demographics and comment on the weather. Do not mention that it appears like a resort/hotel."

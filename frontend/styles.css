@@ -8,6 +8,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  flex-direction: column; /* Ensure vertical alignment for the entire page */
 }
 
 /* Container and Header */
@@ -16,6 +17,7 @@ body {
   max-width: 1200px;
   display: flex;
   flex-direction: column;
+  align-items: center; /* Center content horizontally */
   gap: 20px;
   padding: 10px;
   text-align: center;
@@ -56,14 +58,15 @@ input[type="file"] {
 
 .gallery {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, 1fr); /* Fit 4 images per row */
+  gap: 15px; /* Adjust gap for better spacing */
   justify-content: center;
 }
 
 .gallery img {
-  width: 100%;
+  width: 100%; /* Fully utilize grid space */
   height: auto;
+  max-height: 120px; /* Limit height for uniform size */
   object-fit: cover;
   border: 2px solid transparent;
   border-radius: 5px;
@@ -88,12 +91,14 @@ input[type="file"] {
 /* Stats and Gemini Results */
 .stats, .gemini-results {
   margin-top: 20px;
-  padding: 10px;
+  padding: 15px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 5px;
   text-align: left;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 800px; /* Restrict width for readability */
 }
 
 .error {
