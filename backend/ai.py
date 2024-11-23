@@ -1,9 +1,7 @@
-from collections import defaultdict
-from PIL import Image, ImageDraw, ImageFont
-import torch
-from ultralytics import YOLO
-from ultralytics.engine.results import Boxes
 import os
+from collections import defaultdict
+from PIL import Image
+from ultralytics import YOLO
 
 model_path = "models/yolo11x.pt"
 model = YOLO(model_path)
@@ -54,15 +52,12 @@ def calculate_overlaps(results, iou_threshold=0.2):
     return stats
 
 def save_labeled_image(image_path, results, output_dir):
-    """
-    Use YOLO's result.plot to create labeled images and save the result.
-    """
+    """Create and save labeled images."""
     for result in results:
-        labeled_image = result.plot()  # Get the labeled image as a NumPy array
+        labeled_image = result.plot() 
 
-    # Convert to PIL Image
-    labeled_image = Image.fromarray(labeled_image[:, :, ::-1])  # Convert BGR to RGB
-
+    # Convert to PIL and from BGR to RGB
+    labeled_image = Image.fromarray(labeled_image[:, :, ::-1])  
 
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
@@ -70,7 +65,5 @@ def save_labeled_image(image_path, results, output_dir):
     # Generate labeled image path
     labeled_image_path = os.path.join(output_dir, f"labeled_{os.path.basename(image_path)}")
     labeled_image.save(labeled_image_path)
-
-    print(f"Labeled image saved to {labeled_image_path}")
     return labeled_image_path
 

@@ -102,52 +102,32 @@
         const formData = new FormData();
         formData.append("file", file);
 
-        // Call the analyze API
+        // Call the merged analyze-and-label API
         try {
-          const analyzeResponse = await fetch("http://127.0.0.1:8000/analyze", {
+          const response = await fetch("http://127.0.0.1:8000/analyze-and-label", {
             method: "POST",
             body: formData,
           });
 
-          if (analyzeResponse.ok) {
-            const analyzeData = await analyzeResponse.json();
+          if (response.ok) {
+            const data = await response.json();
 
             // Display stats
             statsDiv.style.display = "block";
             statsDiv.innerHTML = `
               <h3>Analysis Results</h3>
-              <p><strong>Persons Detected:</strong> ${analyzeData.persons_detected}</p>
-              <p><strong>Chairs Detected:</strong> ${analyzeData.chairs_detected}</p>
-              <p><strong>Overlaps (Person-Chair):</strong> ${analyzeData.overlaps}</p>
-              <p><strong>Occupancy Percentage:</strong> ${analyzeData.occupancy_percentage.toFixed(2)}%</p>
+              <p><strong>Persons Detected:</strong> ${data.persons_detected}</p>
+              <p><strong>Chairs Detected:</strong> ${data.chairs_detected}</p>
+              <p><strong>Overlaps (Person-Chair):</strong> ${data.overlaps}</p>
+              <p><strong>Occupancy Percentage:</strong> ${data.occupancy_percentage.toFixed(2)}%</p>
             `;
-          } else {
-            throw new Error(`Analyze API Error: ${analyzeResponse.status}`);
-          }
-        } catch (error) {
-          console.error(error);
-          errorDiv.style.display = "block";
-          errorDiv.textContent = `Error: ${error.message}`;
-          return; // Stop further processing
-        }
-
-        // Call the label-image API
-        try {
-          const labelResponse = await fetch("http://127.0.0.1:8000/label-image", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (labelResponse.ok) {
-            const labeledImageBlob = await labelResponse.blob();
-            const labeledImageUrl = URL.createObjectURL(labeledImageBlob);
 
             // Display labeled image
-            labeledImage.src = labeledImageUrl;
+            labeledImage.src = `http://127.0.0.1:8000/${data.labeled_image_path}`;
             labeledImage.style.display = "block";
             labeledContainer.style.display = "block";
           } else {
-            throw new Error(`Label API Error: ${labelResponse.status}`);
+            throw new Error(`API Error: ${response.status}`);
           }
         } catch (error) {
           console.error(error);
