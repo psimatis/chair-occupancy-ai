@@ -7,7 +7,8 @@ from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from backend.yolo import calculate_stats, save_labeled_image, find_objects
+from yolo import calculate_stats, save_labeled_image, find_objects
+from gemini import analyze_image as gemini_analyze
 
 app = FastAPI()
 
@@ -18,9 +19,7 @@ app.mount("/labeled_images", StaticFiles(directory=LABELS_DIR), name="labeled_im
 
 @app.post("/analyze-image")
 async def analyze_image(file: UploadFile = File(...)):
-    """
-    Analyzes image for chair occupancy statistics and returns labeled image.
-    """
+    """Analyzes image for chair occupancy statistics and returns labeled image."""
     try:
         start_time = time.time()
 
@@ -66,3 +65,27 @@ async def analyze_image(file: UploadFile = File(...)):
         # Clean up temporary file
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+@app.post("/llm-analyze")
+async def llm_analyze_image(file: UploadFile = File(...)):
+    """Uses Gemini API to return a user-frieldly analysis."""
+    try:
+        # Save the uploaded image temporarily
+        image_data = await file.read()
+        temp_path = f"temp_{uuid.uuid4().hex}.jpg"
+        with open(temp_path, "wb") as temp_file:
+            temp_file.write(image_data)
+
+        # Call the Gemini API
+        gemini_result = gemini_analyze(temp_path)
+
+        # Remove the temporary file
+        os.remove(temp_path)
+
+        return JSONResponse(content={
+            "filename": file.filename,
+            "gemini_analysis": gemini_result
+        })
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
