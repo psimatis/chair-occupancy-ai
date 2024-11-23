@@ -1,12 +1,13 @@
 import os
 import uuid
+import time
 from io import BytesIO
 import base64
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from ai import calculate_overlaps, save_labeled_image, find_objects
+from ai import calculate_stats, save_labeled_image, find_objects
 
 app = FastAPI()
 
@@ -16,11 +17,13 @@ os.makedirs(LABELS_DIR, exist_ok=True)
 app.mount("/labeled_images", StaticFiles(directory=LABELS_DIR), name="labeled_images")
 
 @app.post("/analyze-image")
-async def analyze_and_label_json_image(file: UploadFile = File(...)):
+async def analyze_image(file: UploadFile = File(...)):
     """
     Analyzes image for chair occupancy statistics and returns labeled image.
     """
     try:
+        start_time = time.time()
+
         # Load the image
         image_data = await file.read()
         image = Image.open(BytesIO(image_data)).convert("RGB")
@@ -28,8 +31,10 @@ async def analyze_and_label_json_image(file: UploadFile = File(...)):
         image.save(temp_path)
 
         # Process the image
+        model_start_time = time.time()
         results = find_objects(image)
-        stats = calculate_overlaps(results)
+        model_time = time.time() - model_start_time
+        stats = calculate_stats(results)
 
         # Save the labeled image
         labeled_image_path = save_labeled_image(temp_path, results, LABELS_DIR)
@@ -38,13 +43,21 @@ async def analyze_and_label_json_image(file: UploadFile = File(...)):
         with open(labeled_image_path, "rb") as labeled_image_file:
             labeled_image_base64 = base64.b64encode(labeled_image_file.read()).decode("utf-8")
 
+        total_api_time = time.time() - start_time
+
         return JSONResponse(content={
             "filename": file.filename,
-            "persons_detected": stats['person_count'],
-            "chairs_detected": stats['chair_count'],
-            "overlaps": stats['overlap_count'],
-            "occupancy_percentage": stats['occupancy_percentage'],
-            "labeled_image_base64": labeled_image_base64
+            "people": stats['people'],
+            "chairs": stats['chairs'],
+            "chairs_taken": stats['chairs_taken'],
+            "empty_chairs": stats['empty_chairs'],
+            "min_occupancy": stats['min_occupancy'],
+            "max_occupancy": stats['max_occupancy'],
+            "labeled_image_base64": labeled_image_base64,
+            "timing": {
+                "model_prediction_time": model_time,
+                "total_api_time": total_api_time
+            }
         })
 
     except Exception as e:

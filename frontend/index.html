@@ -104,7 +104,7 @@
 
         // Call the analyze-and-label-json-image API
         try {
-          const response = await fetch("http://127.0.0.1:8000/analyze-and-label-json-image", {
+          const response = await fetch("http://127.0.0.1:8000/analyze-image", {
             method: "POST",
             body: formData,
           });
@@ -112,14 +112,19 @@
           if (response.ok) {
             const data = await response.json();
 
-            // Display stats
+            // Display stats, including timing metrics
             statsDiv.style.display = "block";
             statsDiv.innerHTML = `
               <h3>Analysis Results</h3>
-              <p><strong>Persons Detected:</strong> ${data.persons_detected}</p>
-              <p><strong>Chairs Detected:</strong> ${data.chairs_detected}</p>
-              <p><strong>Overlaps (Person-Chair):</strong> ${data.overlaps}</p>
-              <p><strong>Occupancy Percentage:</strong> ${data.occupancy_percentage.toFixed(2)}%</p>
+              <p><strong>People Detected:</strong> ${data.people}</p>
+              <p><strong>Chairs Detected:</strong> ${data.chairs}</p>
+              <p><strong>Chairs Taken:</strong> ${data.chairs_taken}</p>
+              <p><strong>Empty Chairs:</strong> ${data.min_occupancy}</p>
+              <p><strong>Min Occupancy Estimate:</strong> ${data.min_occupancy.toFixed(2)}%</p>
+              <p><strong>Max Occupancy Estimate:</strong> ${data.max_occupancy.toFixed(2)}%</p>
+              <h3>Timing Metrics</h3>
+              <p><strong>Model Prediction Time:</strong> ${data.timing.model_prediction_time.toFixed(3)} seconds</p>
+              <p><strong>Total API Time:</strong> ${data.timing.total_api_time.toFixed(3)} seconds</p>
             `;
 
             // Display labeled image

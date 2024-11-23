@@ -26,29 +26,33 @@ def compute_iou(box1, box2):
 
     return intersection / union if union > 0 else 0
 
-def calculate_overlaps(results, iou_threshold=0.2):
-    """Calculate overlaps between person and chair bounding boxes."""
+def calculate_stats(results, iou_threshold=0.05):
+    """Calculate overlaps, utilization details, and person-to-chair ratio."""
+    stats = defaultdict(int)
     person_boxes = []
     chair_boxes = []
 
+    # Extract bounding boxes for relevant classes
     for result in results:
         for box, cls in zip(result.boxes.xyxy, result.boxes.cls):
-            if int(cls) == RELEVANT_CLASS_IDS:
+            if int(cls) == RELEVANT_CLASS_IDS[0]:
                 person_boxes.append(box.tolist())
-            elif int(cls) in RELEVANT_CLASS_IDS:
+            elif int(cls) in RELEVANT_CLASS_IDS[1:]:
                 chair_boxes.append(box.tolist())
 
-    stats = defaultdict(int)
-
+    # Calculate occupied chairs
     for person_box in person_boxes:
         for chair_box in chair_boxes:
             iou = compute_iou(person_box, chair_box)
             if iou >= iou_threshold:
-                stats['overlap_count'] += 1
+                stats['chairs_taken'] += 1
 
-    stats['chair_count'] = len(chair_boxes)
-    stats['person_count'] = len(person_boxes)
-    stats['occupancy_percentage'] = (stats['overlap_count'] / stats['chair_count']) * 100 if stats['chair_count'] > 0 else 0
+    # Chair utilization details
+    stats['chairs'] = len(chair_boxes)
+    stats['people'] = len(person_boxes)
+    stats['empty_chairs'] = stats['chairs'] - stats['chairs_taken']
+    stats['min_occupancy'] = (stats['chairs_taken'] / stats['chairs']) * 100 if stats['chairs'] > 0 else 0
+    stats['max_occupancy'] = (stats['people'] / stats['chairs']) * 100 if stats['chairs'] > 0 else 0
     return stats
 
 def save_labeled_image(input_image, results, output_dir):
