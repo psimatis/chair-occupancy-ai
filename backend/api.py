@@ -7,7 +7,7 @@ from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from ai import calculate_stats, save_labeled_image, find_objects
+from backend.yolo import calculate_stats, save_labeled_image, find_objects
 
 app = FastAPI()
 
