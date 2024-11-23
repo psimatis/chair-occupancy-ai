@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from ultralytics import YOLO
 from ultralytics.engine.results import Boxes
 import torch
@@ -68,15 +69,18 @@ def calculate_overlaps(results, iou_threshold=0.3):
             elif int(cls) in chair_class_ids: 
                 chair_boxes.append(box.tolist())
 
-    overlap_count = 0
+    stats = defaultdict(int)
 
     for person_box in person_boxes:
         for chair_box in chair_boxes:
             iou = compute_iou(person_box, chair_box)
             if iou >= iou_threshold:
-                overlap_count += 1
+                stats['overlap_count'] += 1
 
-    return len(person_boxes), len(chair_boxes), overlap_count
+    stats['chair_count'] = len(chair_boxes)
+    stats['person_count'] = len(person_boxes)
+    stats['occupancy_percentage'] = (stats['overlap_count'] / stats['chair_count']) * 100 if stats['chair_count'] > 0 else 0
+    return stats
 
 def evaluate_model():
     """
@@ -101,13 +105,14 @@ def evaluate_model():
         result.plot(save=True, filename=output_image_path)
 
         # Calculate overlaps
-        persons, chairs, overlaps = calculate_overlaps(results)
+        stats = calculate_overlaps(results)
 
         # Results
         print(f"Image: {image_file}")
-        print(f"  Persons Detected: {persons}")
-        print(f"  Chairs Detected: {chairs}")
-        print(f"  Overlaps (Person-Chair): {overlaps}")
+        print(f"  Persons Detected: {stats['person_count']}")
+        print(f"  Chairs Detected: {stats['chair_count']}")
+        print(f"  Overlaps (Person-Chair): {stats['overlap_count']}")
+        print(f"  Chair Occupancy Percentage: {stats['occupancy_percentage']:.2f}%")
         print("-" * 30)
 
 if __name__ == "__main__":
