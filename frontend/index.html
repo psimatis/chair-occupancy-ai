@@ -4,65 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Image Analysis</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      margin: 20px auto;
-      max-width: 500px;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    label {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: #007BFF;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 20px 0;
-    }
-
-    label:hover {
-      background-color: #0056b3;
-    }
-
-    img {
-      max-width: 100%;
-      height: auto;
-      margin-top: 20px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
-
-    .stats {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      text-align: left;
-    }
-
-    .error {
-      color: red;
-      margin-top: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
     <h1>Image Analysis</h1>
+    <label for="fileInput">Upload Your Image</label>
     <input type="file" id="fileInput" accept="image/*">
-    <label for="fileInput">Choose Image</label>
+
+    <h3>Or Select an Image from the Gallery:</h3>
+    <div class="gallery">
+      <img src="gallery/test 1.webp" alt="Image 1" data-src="gallery/test 1.webp">
+      <img src="gallery/test 2.png" alt="Image 2" data-src="gallery/test 2.png">
+      <img src="gallery/test 3.jpg" alt="Image 3" data-src="gallery/test 3.jpg">
+      <img src="gallery/test 4.jpg" alt="Image 4" data-src="gallery/test 4.jpg">
+    </div>
 
     <div id="preview">
       <img id="selectedImage" src="" alt="Selected Image" style="display:none;">
@@ -78,69 +34,6 @@
     <div id="error" class="error" style="display:none;"></div>
   </div>
 
-  <script>
-    const fileInput = document.getElementById("fileInput");
-    const selectedImage = document.getElementById("selectedImage");
-    const labeledImage = document.getElementById("labeledImage");
-    const statsDiv = document.getElementById("stats");
-    const labeledContainer = document.getElementById("labeledContainer");
-    const errorDiv = document.getElementById("error");
-
-    fileInput.addEventListener("change", async () => {
-      const file = fileInput.files[0];
-
-      if (file) {
-        // Display the selected image
-        const reader = new FileReader();
-        reader.onload = () => {
-          selectedImage.src = reader.result;
-          selectedImage.style.display = "block";
-        };
-        reader.readAsDataURL(file);
-
-        // Prepare form data
-        const formData = new FormData();
-        formData.append("file", file);
-
-        // Call the analyze-and-label-json-image API
-        try {
-          const response = await fetch("http://127.0.0.1:8000/analyze-image", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-
-            // Display stats, including timing metrics
-            statsDiv.style.display = "block";
-            statsDiv.innerHTML = `
-              <h3>Analysis Results</h3>
-              <p><strong>People Detected:</strong> ${data.people}</p>
-              <p><strong>Chairs Detected:</strong> ${data.chairs}</p>
-              <p><strong>Chairs Taken:</strong> ${data.chairs_taken}</p>
-              <p><strong>Empty Chairs:</strong> ${data.empty_chairs}</p>
-              <p><strong>Min Occupancy Estimate:</strong> ${data.min_occupancy.toFixed(2)}%</p>
-              <p><strong>Max Occupancy Estimate:</strong> ${data.max_occupancy.toFixed(2)}%</p>
-              <h3>Timing Metrics</h3>
-              <p><strong>Model Prediction Time:</strong> ${data.timing.model_prediction_time.toFixed(3)} seconds</p>
-              <p><strong>Total API Time:</strong> ${data.timing.total_api_time.toFixed(3)} seconds</p>
-            `;
-
-            // Display labeled image
-            labeledImage.src = `data:image/jpeg;base64,${data.labeled_image_base64}`;
-            labeledImage.style.display = "block";
-            labeledContainer.style.display = "block";
-          } else {
-            throw new Error(`API Error: ${response.status}`);
-          }
-        } catch (error) {
-          console.error(error);
-          errorDiv.style.display = "block";
-          errorDiv.textContent = `Error: ${error.message}`;
-        }
-      }
-    });
-  </script>
+  <script src="./script.js"></script>
 </body>
 </html>
