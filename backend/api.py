@@ -1,45 +1,34 @@
-import io
 import os
 import uuid
+from io import BytesIO
+import base64
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import StreamingResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from ai import calculate_overlaps, save_labeled_image, find_objects
-from io import BytesIO
-import base64
 
 app = FastAPI()
 
-# Directory for labeled images, stored outside the source folder
+# Directory for labeled images
 LABELS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../labeled_images"))
 os.makedirs(LABELS_DIR, exist_ok=True)
-
-# Mount the labeled images directory as a static file route
-app = FastAPI()
 app.mount("/labeled_images", StaticFiles(directory=LABELS_DIR), name="labeled_images")
 
-
-@app.post("/analyze-and-label-json-image")
+@app.post("/analyze-image")
 async def analyze_and_label_json_image(file: UploadFile = File(...)):
     """
-    Accepts an image, analyzes it for chair occupancy statistics,
-    and returns the labeled image as a Base64 string in the JSON response.
+    Analyzes image for chair occupancy statistics and returns labeled image.
     """
     try:
         # Load the image
         image_data = await file.read()
         image = Image.open(BytesIO(image_data)).convert("RGB")
-
-        # Save the uploaded image temporarily
         temp_path = f"temp_{uuid.uuid4().hex}.jpg"
         image.save(temp_path)
 
-        # Process the image using YOLO model
+        # Process the image
         results = find_objects(image)
-
-        # Calculate statistics
         stats = calculate_overlaps(results)
 
         # Save the labeled image
@@ -49,7 +38,6 @@ async def analyze_and_label_json_image(file: UploadFile = File(...)):
         with open(labeled_image_path, "rb") as labeled_image_file:
             labeled_image_base64 = base64.b64encode(labeled_image_file.read()).decode("utf-8")
 
-        # Return JSON response with Base64 image and statistics
         return JSONResponse(content={
             "filename": file.filename,
             "persons_detected": stats['person_count'],
@@ -59,37 +47,6 @@ async def analyze_and_label_json_image(file: UploadFile = File(...)):
             "labeled_image_base64": labeled_image_base64
         })
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        # Clean up temporary file
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-
-@app.post("/analyze-and-return-image")
-async def analyze_and_return_image(file: UploadFile = File(...)):
-    """
-    Accepts an image, analyzes it for chair occupancy statistics, and returns the labeled image directly.
-    """
-    try:
-        # Load the image
-        image_data = await file.read()
-        image = Image.open(io.BytesIO(image_data)).convert("RGB")
-
-        # Save the uploaded image temporarily
-        temp_path = f"temp_{uuid.uuid4().hex}.jpg"
-        image.save(temp_path)
-
-        # Infer using the YOLO model
-        results = find_objects(image)
-
-        # Save the labeled image with bounding boxes
-        labeled_image_path = save_labeled_image(temp_path, results, LABELS_DIR)
-
-        # Open the labeled image and return it as binary data
-        labeled_image = open(labeled_image_path, "rb")
-        return StreamingResponse(labeled_image, media_type="image/jpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
