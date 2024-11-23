@@ -61,7 +61,8 @@ def save_labeled_image(image_path, results, output_dir):
         labeled_image = result.plot()  # Get the labeled image as a NumPy array
 
     # Convert to PIL Image
-    labeled_image = Image.fromarray(labeled_image)
+    labeled_image = Image.fromarray(labeled_image[:, :, ::-1])  # Convert BGR to RGB
+
 
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
