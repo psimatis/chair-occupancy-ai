@@ -1,12 +1,11 @@
 import io
 import os
 import uuid
-from io import BytesIO
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse, StreamingResponse
-from ai import model, calculate_overlaps, save_labeled_image, find_objects
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from ai import calculate_overlaps, save_labeled_image, find_objects
 
 
 app = FastAPI()

@@ -51,7 +51,7 @@ def calculate_overlaps(results, iou_threshold=0.2):
     stats['occupancy_percentage'] = (stats['overlap_count'] / stats['chair_count']) * 100 if stats['chair_count'] > 0 else 0
     return stats
 
-def save_labeled_image(image_path, results, output_dir):
+def save_labeled_image(input_image, results, output_dir):
     """Create and save labeled images."""
     for result in results:
         labeled_image = result.plot() 
@@ -62,8 +62,8 @@ def save_labeled_image(image_path, results, output_dir):
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
 
-    # Generate labeled image path
-    labeled_image_path = os.path.join(output_dir, f"labeled_{os.path.basename(image_path)}")
+    # Get image path
+    labeled_image_path = os.path.join(output_dir, f"labeled_{os.path.basename(input_image)}")
     labeled_image.save(labeled_image_path)
     return labeled_image_path
 
