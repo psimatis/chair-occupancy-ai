@@ -10,7 +10,7 @@ RELEVANT_CLASS_IDS = [0, 13, 56, 57, 59] # Person, Bench, Chair, Couch, Bed
 
 def find_objects(image):
     """Run YOLO with restricted results to releevant classes."""
-    return model.predict(source=image, classes=RELEVANT_CLASS_IDS, save=False, conf=0.5)
+    return model.predict(source=image, classes=RELEVANT_CLASS_IDS, save=False, conf=0.01)
 
 def compute_iou(box1, box2):
     """Compute Intersection over Union (IoU) for two bounding boxes."""

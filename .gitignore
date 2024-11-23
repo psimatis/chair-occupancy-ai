@@ -4,6 +4,7 @@ Datasets/
 # Exclude YOLO output
 runs/
 labeled_images/
+labeled_videos/
 
 
 # Exclude Python virtual environment

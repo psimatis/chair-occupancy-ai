@@ -43,6 +43,6 @@ def call_analyze_api(api_url, directory_path):
 
 if __name__ == "__main__":
     # Example usage
-    api_url = "http://127.0.0.1:8000/analyze"  # Change to your API's URL
+    api_url = "http://127.0.0.1:8000/analyze-and-label"  # Change to your API's URL
     directory_path = "../Datasets/User Test"
     call_analyze_api(api_url, directory_path)

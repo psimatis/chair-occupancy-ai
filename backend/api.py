@@ -3,6 +3,7 @@ import os
 import uuid
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from ai import calculate_overlaps, save_labeled_image, find_objects
@@ -52,6 +53,38 @@ async def analyze_and_label_image(file: UploadFile = File(...)):
             "overlaps": stats['overlap_count'],
             "occupancy_percentage": stats['occupancy_percentage']
         })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+from fastapi.responses import StreamingResponse
+
+@app.post("/analyze-and-return-image")
+async def analyze_and_return_image(file: UploadFile = File(...)):
+    """
+    Accepts an image, analyzes it for chair occupancy statistics, and returns the labeled image directly.
+    """
+    try:
+        # Load the image
+        image_data = await file.read()
+        image = Image.open(io.BytesIO(image_data)).convert("RGB")
+
+        # Save the uploaded image temporarily
+        temp_path = f"temp_{uuid.uuid4().hex}.jpg"
+        image.save(temp_path)
+
+        # Infer using the YOLO model
+        results = find_objects(image)
+
+        # Save the labeled image with bounding boxes
+        labeled_image_path = save_labeled_image(temp_path, results, LABELS_DIR)
+
+        # Open the labeled image and return it as binary data
+        labeled_image = open(labeled_image_path, "rb")
+        return StreamingResponse(labeled_image, media_type="image/jpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
