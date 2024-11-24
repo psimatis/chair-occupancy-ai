@@ -76,7 +76,6 @@ async def llm_analyze_image(file: UploadFile = File(...)):
         with open(temp_path, "wb") as temp_file:
             temp_file.write(image_data)
 
-        # Call the Gemini API
         gemini_result = gemini_analyze(temp_path)
 
         # Remove the temporary file

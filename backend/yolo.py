@@ -74,7 +74,6 @@ def save_labeled_image(input_image, results, output_dir):
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
 
-    # Get image path
     labeled_image_path = os.path.join(output_dir, f"labeled_{os.path.basename(input_image)}")
     labeled_image.save(labeled_image_path)
     return labeled_image_path
