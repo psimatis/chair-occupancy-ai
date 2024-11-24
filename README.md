@@ -1,10 +1,14 @@
 # Pool Area Occupancy AI System
 
-Web-based AI system analyzing the occupancy of pool areas. It detects the number of people, chairs, and their occupancy status. It also provides insights (e.g., demographics) with a multi-model LLM.
+Web-based AI system analyzing the occupancy of pool areas. It detects the number of people, chairs, and their occupancy status. It also provides insights (e.g., demographics) with a multi-modal LLM.
 
 The project consists of:
 - **Frontend**: A barebone interface supporting file uploads and gallery image selection.
 - **Backend**: Provides statistics and insights using YOLO, Gemini, and some geometric processing.
+
+<p align="center">
+  <img src="example.png" alt="Pool Area AI System" style="width: 60%; border: 2px solid #ccc; border-radius: 10px;" />
+</p>
 
 ## Prerequisites
 1. **Docker**: Install Docker and Docker Compose.
@@ -42,9 +46,8 @@ The project consists of:
   - Input: Image file.
   - Output: GenAI insights.
 
-## Technologies Used
+## Tech Stack
 - **AI Models**: YOLO, Google Gemini
 - **Backend**: FastAPI, Python
 - **Frontend**: HTML, CSS, JavaScript
 - **Docker**: For containerization
-
