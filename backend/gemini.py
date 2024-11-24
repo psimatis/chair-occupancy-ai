@@ -17,7 +17,7 @@ if not GEMINI_API_KEY:
 genai.configure(api_key=GEMINI_API_KEY)
 
 
-def analyze_image(image_path, dummy=True):
+def analyze_image(image_path, dummy=False):
     """
     Analyze an image using the Gemini API.
     :param image_path: Path to the image to be analyzed.
@@ -34,7 +34,7 @@ def analyze_image(image_path, dummy=True):
         model = genai.GenerativeModel("gemini-1.5-flash")  # Initialize the generative model
 
         # Formulate the request
-        prompt = "Keep it brief. Say if there many or few empty chairs. Suggest where to find an empty chair. Give demographics and comment on the weather. Do not mention that it appears like a resort/hotel."
+        prompt = "Keep it brief and don't say yes or no. Say if there are empty chairs. Suggest where to find an empty chair. If you can detect people give demographics otherwise don't. Comment on the weather. Do not mention that it appears like a resort/hotel."
         result = model.generate_content([prompt, img], generation_config=genai.types.GenerationConfig(max_output_tokens=80))
         return result.text
 
