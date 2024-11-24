@@ -4,7 +4,7 @@ from api import app
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["http://47.129.230.74"], 
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"], 

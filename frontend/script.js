@@ -20,7 +20,7 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
     }
 
     // Call the analyze API
-    const analyzeResponse = await fetch("http://127.0.0.1:8000/analyze-image", {
+    const analyzeResponse = await fetch("http://47.129.230.74:8000/analyze-image", {
       method: "POST",
       body: formData,
     });
@@ -46,7 +46,7 @@ const analyzeImage = async (imageSrc, isUploaded = false) => {
       geminiText.innerHTML = "<em>AI is thinking...</em>";
       geminiResultsDiv.style.display = "block";
 
-      const geminiResponse = await fetch("http://127.0.0.1:8000/llm-analyze", {
+      const geminiResponse = await fetch("http://47.129.230.74:8000/llm-analyze", {
         method: "POST",
         body: formData,
       });
