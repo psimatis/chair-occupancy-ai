@@ -1,13 +1,13 @@
-# Pool Area Occupancy AI System
+# Pool Area Occupancy AI
 
-Web-based AI system analyzing the occupancy of pool areas. It detects the number of people, chairs, and their occupancy status. It also provides insights (e.g., demographics) with a multi-modal LLM.
+Web-based AI system analyzing resorts' pool areas. It detects people and chairs, and calculates occupancy. It also provides insights (e.g., demographics) with a multi-modal LLM.
 
 The project consists of:
 - **Frontend**: A barebone interface supporting file uploads and gallery image selection.
 - **Backend**: Provides statistics and insights using YOLO, Gemini, and some geometric processing.
 
 <p align="center">
-  <img src="example.png" alt="Pool Area AI System" style="width: 60%; border: 2px solid #ccc; border-radius: 10px;" />
+  <img src="example.png" alt="Pool Area AI System" title="Example result" style="width: 60%; border: 2px solid #ccc; border-radius: 10px;" />
 </p>
 
 ## Prerequisites
