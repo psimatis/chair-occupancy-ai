@@ -1,24 +1,23 @@
-# Exclude data directories
+# Backend: Data directories
 Datasets/
-
-# Exclude YOLO output
 runs/
 labeled_images/
 labeled_videos/
 
-
-# Exclude Python virtual environment
-venv/
-
-# Byte-compiled / optimized / DLL files
+# Backend: Python-specific
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 
+# Backend: Environment
+venv/
+*.env
+
 # Logs and debug files
 *.log
 *.out
+*.err
 
 # Temporary files
 *.tmp
@@ -26,6 +25,10 @@ __pycache__/
 *.bak
 *.swp
 *.swo
+*.pid
+*.seed
+*.cover
+*.orig
 
 # System files
 .DS_Store
@@ -34,11 +37,38 @@ Thumbs.db
 # IDE and editor-specific files
 .vscode/
 .idea/
+*.sublime-*
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# Other
-TODO
+# Machine learning models and weights
 *.pt
-.env
+*.onnx
+*.h5
+*.ckpt
+
+# Frontend: Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend: Build output
+dist/
+build/
+.cache/
+.eslintcache
+
+# Frontend: Temporary and editor files
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+
+# Frontend: Config and dependency lock files (ignore lockfiles unless needed)
+package-lock.json
+yarn.lock
+
+# Miscellaneous
+TODO
+*.backup
+*.orig

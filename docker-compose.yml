@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: chair-occupancy-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}  # Add environment variable
+    depends_on:
+      - frontend
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: chair-occupancy-frontend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/app
